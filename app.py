@@ -24,7 +24,7 @@ def recommend():
     data = request.json['data']
     result = Recommender.recommend_funders(2014, data)
     return jsonify(result)
-    
+
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
