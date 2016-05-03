@@ -6,6 +6,7 @@ from recommender import Recommender
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
+recommender = Recommender()
 
 
 @auth.verify_password
@@ -22,7 +23,7 @@ def root():
 @auth.login_required
 def recommend():
     data = request.json['data']
-    result = Recommender.recommend_funders(2014, data)
+    result = recommender.recommend_funders(2014, data)
     return jsonify(result)
 
 
