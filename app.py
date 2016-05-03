@@ -10,13 +10,13 @@ auth = HTTPBasicAuth()
 
 @auth.verify_password
 def verify_password(username, password):
-    if username == os.environ['ADMIN_TOKEN']:
+    if username == os.environ.get('ADMIN_TOKEN'):
         return True
 
-@app.route('/', methods=['POST'])
+@app.route('/', methods=['GET'])
+@auth.login_required
 def root():
-    data = request.json['recipient']
-    return jsonify({'r': data})
+    return 'Success!'
 
 @app.route('/recommend', methods=['POST'])
 @auth.login_required
@@ -27,4 +27,4 @@ def recommend():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
