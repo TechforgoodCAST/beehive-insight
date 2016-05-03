@@ -5,11 +5,8 @@ from sklearn.metrics.pairwise import pairwise_distances
 
 class Recommender:
 
-    def __init__(self):
-        self.data_path = os.environ.get('DATA_PATH') or ''
-
     def read_csv(self, year):
-        filename = self.data_path + 'data/grants/grants_' + str(year) + '.csv'
+        filename = 'data/grants/grants_' + str(year) + '.csv'
         return pd.read_csv(filename)
 
     def beneficiaries_for(self, year):
@@ -40,7 +37,7 @@ class Recommender:
         grants = self.grants_for(year)
         funder_beneficiaries_groups = self.funder_beneficiaries(beneficiaries, grants)
         scaled_funder_beneficiaries_groups = self.scale_funder_beneficiaries(funder_beneficiaries_groups)
-        scaled_funder_beneficiaries_groups.to_csv(self.data_path + 'data/scaled/scaled_2014.csv')
+        scaled_funder_beneficiaries_groups.to_csv('data/scaled/scaled_2014.csv')
         return scaled_funder_beneficiaries_groups
 
     def parse_user_input(self, user_input):
@@ -58,12 +55,7 @@ class Recommender:
 
     def recommend_funders(self, year, user_input):
         parsed_user_input = self.parse_user_input(user_input)
-        filename = self.data_path + 'data/scaled/scaled_' + str(year) + '.csv'
-        file_present = os.path.isfile(filename)
-        if file_present:
-            funders_data = pd.read_csv(filename)
-        else:
-            funders_data = self.prepare_funders_data(year)
-        funders_data = self.prepare_funders_data(year)
+        funders_data = pd.read_csv(os.environ.get('DATA_PATH'))
+        funders_data.set_index('funder', inplace=True)
         distances = pairwise_distances(parsed_user_input, funders_data, metric='cosine', n_jobs=1)
         return pd.Series(1-distances[0], index=funders_data.index)
