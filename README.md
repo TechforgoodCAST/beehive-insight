@@ -1,5 +1,9 @@
 ## Beehive Funder Recommender API
 
+### Local setup
+1. Create the database with `createdb beehive_insight_development`
+2. Setup the database with `python db_create.py`
+
 ### Usage
 Send a `POST` request to `http://<API-DOMAIN-TBC>/recommend` with basic_auth and JSON body:
 
