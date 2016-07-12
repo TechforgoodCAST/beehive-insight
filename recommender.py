@@ -1,4 +1,5 @@
 import os
+import requests
 import pandas as pd
 from sklearn import preprocessing
 from sklearn.metrics.pairwise import pairwise_distances
@@ -6,19 +7,27 @@ from sklearn.metrics.pairwise import pairwise_distances
 
 class Recommender:
 
+    def __init__(self):
+        import config
+        env = os.environ.get('APP_ENV') or 'Development'
+        self.config = getattr(config, env)
+
     def read_json(self):
-        # todo endpoint by env & authentication
-        return pd.read_json('http://localhost:3000/v1/insight/grants')
+        url = self.config.BEEHIVE_DATA_ENDPOINT
+        token = self.config.BEEHIVE_DATA_TOKEN
+        headers = {'Authorization': 'Token token=' + token}
+        r = requests.get(url, headers=headers)
+        return pd.read_json(r.text)
 
     def beneficiaries(self):
         df = self.read_json()
         df.set_index('recipient', inplace=True)
-        df.drop('fund', inplace=True, axis=1)
+        df.drop('fund_slug', inplace=True, axis=1)
         return df
 
     def grants(self):
         df = self.read_json()
-        df = df[['fund', 'recipient']]
+        df = df[['fund_slug', 'recipient']]
         df.set_index('recipient', inplace=True)
         return df
 
@@ -26,7 +35,7 @@ class Recommender:
         df = grants.join(beneficiaries)
         df = df.dropna()
         df.reset_index(drop=True, inplace=True)
-        return df.groupby('fund').sum()
+        return df.groupby('fund_slug').sum()
 
     def scale_funder_beneficiaries(self, funder_beneficiaries_groups):
         min_max_scaler = preprocessing.MinMaxScaler()
@@ -41,10 +50,11 @@ class Recommender:
     def get_or_create(self, session, model, slug, data):
         instance = session.query(model).filter_by(fund_slug=slug).first()
         if instance:
-            instance.update(*data)
+            instance.update(data)
+            session.commit()
             return instance
         else:
-            instance = model(*data)
+            instance = model(slug, data)
             session.add(instance)
             session.commit()
             return instance
@@ -53,8 +63,9 @@ class Recommender:
         from app import db
         from models import FunderBeneficiary
         df = self.prepare_funders_data()
-        for row in df.itertuples():
-            self.get_or_create(db.session, FunderBeneficiary, row[0], row)
+        dic = df.to_dict(orient='index')
+        for item in dic.items():
+            self.get_or_create(db.session, FunderBeneficiary, item[0], item[1])
 
     def parse_user_input(self, user_input):
         from models import FunderBeneficiary
@@ -72,6 +83,6 @@ class Recommender:
         for record in FunderBeneficiary.query.all():
             funders_data.append(record.serialize)
         funders_df = pd.DataFrame(funders_data)
-        funders_df.set_index('fund', inplace=True)
+        funders_df.set_index('fund_slug', inplace=True)
         distances = pairwise_distances(parsed_user_input, funders_df, metric='cosine', n_jobs=1)
         return pd.Series(1 - distances[0], index=funders_df.index)

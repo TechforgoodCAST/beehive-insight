@@ -1,5 +1,5 @@
 import os
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_httpauth import HTTPBasicAuth
 from recommender import Recommender
@@ -8,7 +8,12 @@ from recommender import Recommender
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 recommender = Recommender()
-app.config.from_object(os.environ.get('APP_ENV') or 'config.DevelopmentConfig')
+env = os.environ.get('APP_ENV')
+if env:
+    app.config.from_object('config.' + env)
+else:
+    app.config.from_object('config.Development')
+auth = HTTPBasicAuth()
 db = SQLAlchemy(app)
 
 
@@ -21,12 +26,23 @@ def verify_password(username, password):
 @app.route('/', methods=['GET'])
 @auth.login_required
 def root():
-    return 'Success!'
+    return 'Signed in as Admin'
 
 
-@app.route('/recommend', methods=['POST'])
+@app.route('/update', methods=['GET'])
 @auth.login_required
-def recommend():
+def update():
+    recommender.save_funders_data()
+    from models import FunderBeneficiary
+    records = []
+    for record in FunderBeneficiary.query.order_by(FunderBeneficiary.fund_slug).all():
+        records.append(record.serialize)
+    return render_template('update.html', records=records)
+
+
+@app.route('/beneficiaries', methods=['POST'])
+@auth.login_required
+def beneficiaries():
     data = request.json['data']
     result = recommender.recommend_funders(data)
     return jsonify(result)

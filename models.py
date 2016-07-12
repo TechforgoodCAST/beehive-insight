@@ -19,18 +19,22 @@ class FunderBeneficiary(db.Model):
     for category in CATEGORIES:
         setattr(db.Model, category, db.Column(db.Float, nullable=False))
 
-    def __init__(self, fund_slug, *args):
+    def __init__(self, fund_slug, data):
         self.fund_slug = fund_slug
         self.year = fund_slug[0:4]
-        for i, category in enumerate(self.CATEGORIES):
-            setattr(self, category, args[i])
+        for category in self.CATEGORIES:
+            setattr(self, category, data[category])
 
     def __repr__(self):
         return '<FunderBeneficiary %r>' % self.id
 
+    def update(self, data):
+        for key in data.keys():
+            setattr(self, key, data[key])
+
     @property
     def serialize(self):
-        response = {'fund': self.fund_slug}
+        response = {'fund_slug': self.fund_slug}
         for category in self.CATEGORIES:
             response[category] = getattr(self, category)
         return response
