@@ -1,15 +1,9 @@
-## Beehive Funder Recommender API
+## Beehive Insight
 
 ### Local setup
 1. Create the database with `createdb beehive_insight_development`
 2. Setup the database with `python db_create.py`
-3. Start app with
-```
-BEEHIVE_INSIGHT_TOKEN=<YOUR TOKEN> /
-BEEHIVE_DATA_TOKEN=<YOUR TOKEN> /
-BEEHIVE_INSIGHT_SECRET=<YOUR SECRET> /
-python app.py
-```
+3. Start app with `BEEHIVE_INSIGHT_TOKEN=<YOUR TOKEN> python app.py`
 4. Visit `http://localhost:5000/update` to create initial analysis data.
 
 ### Usage
@@ -19,8 +13,8 @@ Send a `POST` request to `https://beehive-insight.herokuapp.com/beneficiaries` w
 # Authentication
 ...
 basic_auth: {
-              username: BEEHIVE_INSIGHT_TOKEN,
-              password: BEEHIVE_INSIGHT_SECRET
+              username: BEEHIVE_INSIGHT_TOKEN, # 'username' in Development
+              password: BEEHIVE_INSIGHT_SECRET # 'password' in Development
             }
 ...
 

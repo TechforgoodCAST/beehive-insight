@@ -13,6 +13,8 @@ class Development(Base):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://localhost/beehive_insight_development'
     BEEHIVE_DATA_ENDPOINT = 'http://localhost:3000/v1/insight/grants'
+    BEEHIVE_INSIGHT_TOKEN = 'username'
+    BEEHIVE_INSIGHT_SECRET = 'password'
 
 
 class Production(Base):
