@@ -18,7 +18,7 @@ db = SQLAlchemy(app)
 
 @auth.verify_password
 def verify_password(username, password):
-    if username == os.environ.get('ADMIN_TOKEN'):
+    if username == os.environ.get('BEEHIVE_INSIGHT_TOKEN') and password == os.environ.get('BEEHIVE_INSIGHT_SECRET'):
         return True
 
 
