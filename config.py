@@ -7,6 +7,8 @@ class Base(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     BEEHIVE_DATA_ENDPOINT = os.environ.get('BEEHIVE_DATA_ENDPOINT')
     BEEHIVE_DATA_TOKEN = os.environ.get('BEEHIVE_DATA_TOKEN')
+    BEEHIVE_INSIGHT_TOKEN = os.environ.get('BEEHIVE_INSIGHT_TOKEN')
+    BEEHIVE_INSIGHT_SECRET = os.environ.get('BEEHIVE_INSIGHT_SECRET')
 
 
 class Development(Base):
