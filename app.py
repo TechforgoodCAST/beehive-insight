@@ -13,7 +13,6 @@ if env:
     app.config.from_object('config.' + env)
 else:
     app.config.from_object('config.Development')
-auth = HTTPBasicAuth()
 db = SQLAlchemy(app)
 
 

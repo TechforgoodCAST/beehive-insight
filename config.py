@@ -16,4 +16,4 @@ class Development(Base):
 
 
 class Production(Base):
-    DEBUG = False
+    DEBUG = True
