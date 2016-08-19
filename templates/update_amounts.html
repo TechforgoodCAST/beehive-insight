@@ -1,0 +1,32 @@
+{% extends 'app.html' %}
+{% block content %}
+
+<h1>Update amounts</h1>
+
+<table style='white-space: nowrap;'>
+  <thead>
+    <tr>
+      <td><strong>fund_slug</strong></td>
+      {% for k, v in records[0].items() %}
+        {% if k != 'fund_slug' %}
+          <td><strong>{{ k }}</strong></td>
+        {% endif %}
+      {% endfor %}
+    </tr>
+  </thead>
+
+  <tbody>
+  {% for record in records %}
+    <tr>
+      <td>{{ record.fund_slug }}</td>
+      {% for k, v in record.items()  %}
+        {% if k != 'fund_slug' %}
+          <td>{{ v }}</td>
+        {% endif %}
+      {% endfor %}
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

@@ -3,7 +3,7 @@
 ### Local setup
 1. Create the database with `createdb beehive_insight_development`
 2. Setup the database with `python db_create.py`
-3. Start app with `BEEHIVE_INSIGHT_TOKEN=<YOUR TOKEN> python app.py`
+3. Start app with `BEEHIVE_DATA_TOKEN=<YOUR TOKEN> python app.py`
 4. Visit `http://localhost:5000/update` to create initial analysis data.
 
 ### Usage

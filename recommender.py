@@ -16,8 +16,8 @@ class Recommender:
         url = self.config.BEEHIVE_DATA_ENDPOINT
         token = self.config.BEEHIVE_DATA_TOKEN
         headers = {'Authorization': 'Token token=' + token}
-        r = requests.get(url, headers=headers)
-        return pd.read_json(r.text)
+        response = requests.get(url, headers=headers)
+        return pd.read_json(response.text)
 
     def beneficiaries(self):
         df = self.read_json()

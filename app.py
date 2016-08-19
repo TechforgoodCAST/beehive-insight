@@ -3,11 +3,14 @@ from flask import Flask, jsonify, request, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_httpauth import HTTPBasicAuth
 from recommender import Recommender
+from amount import Amount
+from models import *
 
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 recommender = Recommender()
+amount = Amount()
 env = os.environ.get('APP_ENV')
 if env:
     app.config.from_object('config.' + env)
@@ -32,7 +35,6 @@ def root():
 @auth.login_required
 def update():
     recommender.save_funders_data()
-    from models import FunderBeneficiary
     records = []
     for record in FunderBeneficiary.query.order_by(FunderBeneficiary.fund_slug).all():
         records.append(record.serialize)
@@ -46,6 +48,23 @@ def beneficiaries():
     result = recommender.recommend_funders(data)
     return jsonify(result)
 
+
+@app.route('/update_amounts', methods=['GET'])
+@auth.login_required
+def update_amounts():
+    amount.save_fund_amounts()
+    records = []
+    for record in FundAmount.query.order_by(FundAmount.fund_slug).all():
+        records.append(record.serialize)
+    return render_template('update_amounts.html', records=records)
+
+
+@app.route('/check_amount', methods=['POST'])
+@auth.login_required
+def check_amount():
+    data = request.json['data']['amount']
+    result = amount.check_amount(data)
+    return jsonify(result)
 
 if __name__ == "__main__":
     app.run()

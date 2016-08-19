@@ -1,4 +1,6 @@
 from app import db
+import sqlalchemy
+from sqlalchemy.dialects.postgresql import ARRAY
 
 
 class FunderBeneficiary(db.Model):
@@ -16,8 +18,6 @@ class FunderBeneficiary(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     fund_slug = db.Column(db.String(255), nullable=False)
     year = db.Column(db.Integer, nullable=False)
-    for category in CATEGORIES:
-        setattr(db.Model, category, db.Column(db.Float, nullable=False))
 
     def __init__(self, fund_slug, data):
         self.fund_slug = fund_slug
@@ -28,6 +28,7 @@ class FunderBeneficiary(db.Model):
     def __repr__(self):
         return '<FunderBeneficiary %r>' % self.id
 
+    # TODO: refactor
     def update(self, data):
         for key in data.keys():
             setattr(self, key, data[key])
@@ -38,3 +39,34 @@ class FunderBeneficiary(db.Model):
         for category in self.CATEGORIES:
             response[category] = getattr(self, category)
         return response
+
+for category in FunderBeneficiary.CATEGORIES:
+    setattr(FunderBeneficiary, category, db.Column(db.Float, nullable=False))
+
+
+class FundAmount(db.Model):
+
+    __tablename__ = 'fund_amount'
+
+    id = db.Column(db.Integer, primary_key=True)
+    fund_slug = db.Column(db.String(255), nullable=False)
+    amounts = db.Column(sqlalchemy.dialects.postgresql.ARRAY(db.Float), nullable=False)
+
+    def __init__(self, fund_slug, amounts):
+        self.fund_slug = fund_slug
+        self.amounts = amounts
+
+    def __repr__(self):
+        return '<FundAmount %r>' % self.id
+
+    # TODO: refactor
+    def update(self, data):
+        for key in data.keys():
+            setattr(self, key, data[key])
+
+    @property
+    def serialize(self):
+        return {
+            'fund_slug': self.fund_slug,
+            'amounts': self.amounts
+        }
