@@ -33,7 +33,7 @@ class FundRequest:
             session.commit()
             return instance
         else:
-            instance = model(slug, getattr(data, field))
+            instance = model(slug, data[field])
             session.add(instance)
             session.commit()
             return instance
