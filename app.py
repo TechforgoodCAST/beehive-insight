@@ -4,7 +4,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_httpauth import HTTPBasicAuth
 from recommender import Recommender
 from amount import Amount
-from models import *
 
 
 app = Flask(__name__)
@@ -34,6 +33,7 @@ def root():
 @app.route('/update', methods=['GET'])
 @auth.login_required
 def update():
+    from models import FunderBeneficiary
     recommender.save_funders_data()
     records = []
     for record in FunderBeneficiary.query.order_by(FunderBeneficiary.fund_slug).all():
@@ -52,6 +52,7 @@ def beneficiaries():
 @app.route('/update_amounts', methods=['GET'])
 @auth.login_required
 def update_amounts():
+    from models import FundAmount
     amount.save_fund_amounts()
     records = []
     for record in FundAmount.query.order_by(FundAmount.fund_slug).all():
