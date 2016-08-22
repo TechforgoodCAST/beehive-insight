@@ -70,3 +70,31 @@ class FundAmount(db.Model):
             'fund_slug': self.fund_slug,
             'amounts': self.amounts
         }
+
+
+class FundDuration(db.Model):
+
+    __tablename__ = 'fund_duration'
+
+    id = db.Column(db.Integer, primary_key=True)
+    fund_slug = db.Column(db.String(255), nullable=False)
+    durations = db.Column(sqlalchemy.dialects.postgresql.ARRAY(db.Float), nullable=False)
+
+    def __init__(self, fund_slug, durations):
+        self.fund_slug = fund_slug
+        self.durations = durations
+
+    def __repr__(self):
+        return '<FundDuration %r>' % self.id
+
+    # TODO: refactor
+    def update(self, data):
+        for key in data.keys():
+            setattr(self, key, data[key])
+
+    @property
+    def serialize(self):
+        return {
+            'fund_slug': self.fund_slug,
+            'durations': self.durations
+        }

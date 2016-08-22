@@ -3,19 +3,20 @@ from flask import Flask, jsonify, request, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_httpauth import HTTPBasicAuth
 from recommender import Recommender
-from amount import Amount
+from fund_request import FundRequest
 
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
-recommender = Recommender()
-amount = Amount()
 env = os.environ.get('APP_ENV')
 if env:
     app.config.from_object('config.' + env)
 else:
     app.config.from_object('config.Development')
 db = SQLAlchemy(app)
+
+recommender = Recommender()
+fund_request = FundRequest()
 
 
 @auth.verify_password
@@ -33,6 +34,7 @@ def root():
 @app.route('/update', methods=['GET'])
 @auth.login_required
 def update():
+    # TODO: refacor
     from models import FunderBeneficiary
     recommender.save_funders_data()
     records = []
@@ -52,19 +54,34 @@ def beneficiaries():
 @app.route('/update_amounts', methods=['GET'])
 @auth.login_required
 def update_amounts():
-    from models import FundAmount
-    amount.save_fund_amounts()
-    records = []
-    for record in FundAmount.query.order_by(FundAmount.fund_slug).all():
-        records.append(record.serialize)
-    return render_template('update_amounts.html', records=records)
+    return render_template(
+        'update_amounts.html',
+        records=fund_request.save_fund_amounts()
+    )
 
 
 @app.route('/check_amount', methods=['POST'])
 @auth.login_required
 def check_amount():
     data = request.json['data']['amount']
-    result = amount.check_amount(data)
+    result = fund_request.check_amount(data)
+    return jsonify(result)
+
+
+@app.route('/update_durations', methods=['GET'])
+@auth.login_required
+def update_durations():
+    return render_template(
+        'update_durations.html',
+        records=fund_request.save_fund_durations()
+    )
+
+
+@app.route('/check_duration', methods=['POST'])
+@auth.login_required
+def check_duration():
+    data = request.json['data']['duration']
+    result = fund_request.check_duration(data)
     return jsonify(result)
 
 if __name__ == "__main__":
