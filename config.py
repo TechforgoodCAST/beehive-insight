@@ -23,5 +23,9 @@ class Development(Base):
     BEEHIVE_INSIGHT_SECRET = 'password'
 
 
+class Staging(Base):
+    DEBUG = True
+
+
 class Production(Base):
     DEBUG = False
