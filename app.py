@@ -31,7 +31,7 @@ def root():
     return 'Signed in as Admin'
 
 
-@app.route('/update', methods=['GET'])
+@app.route('/update_beneficiaries', methods=['GET'])
 @auth.login_required
 def update():
     # TODO: refacor

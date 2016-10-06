@@ -17,11 +17,9 @@ class FunderBeneficiary(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     fund_slug = db.Column(db.String(255), nullable=False)
-    year = db.Column(db.Integer, nullable=False)
 
     def __init__(self, fund_slug, data):
         self.fund_slug = fund_slug
-        self.year = fund_slug[0:4]
         for category in self.CATEGORIES:
             setattr(self, category, data[category])
 
