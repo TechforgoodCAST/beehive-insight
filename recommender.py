@@ -23,12 +23,10 @@ class Recommender:
         df = self.read_json()
         df.set_index('recipient', inplace=True)
         df.drop('fund_slug', inplace=True, axis=1)
-        df.drop('manual', inplace=True, axis=1)  # TODO:
         return df
 
     def grants(self):
         df = self.read_json()
-        df.drop('manual', inplace=True, axis=1)  # TODO:
         df = df[['fund_slug', 'recipient']]
         df.set_index('recipient', inplace=True)
         return df
@@ -90,7 +88,7 @@ class Recommender:
         for record in FunderBeneficiary.query.all():
             funders_data.append(record.serialize)
         funders_df = pd.DataFrame(funders_data)
-        funders_df.drop('manual', inplace=True, axis=1)  # TODO:
+        funders_df.drop('manual', inplace=True, axis=1)
         funders_df.set_index('fund_slug', inplace=True)
         distances = pairwise_distances(parsed_user_input, funders_df, metric='cosine', n_jobs=1)
         return pd.Series(1 - distances[0], index=funders_df.index)
