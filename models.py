@@ -17,9 +17,11 @@ class FunderBeneficiary(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     fund_slug = db.Column(db.String(255), nullable=False)
+    manual = db.Column(db.Boolean, nullable=False, default=False)
 
-    def __init__(self, fund_slug, data):
+    def __init__(self, fund_slug, data, manual=False):
         self.fund_slug = fund_slug
+        self.manual = manual
         for category in self.CATEGORIES:
             setattr(self, category, data[category])
 
@@ -33,7 +35,7 @@ class FunderBeneficiary(db.Model):
 
     @property
     def serialize(self):
-        response = {'fund_slug': self.fund_slug}
+        response = {'fund_slug': self.fund_slug, 'manual': self.manual}
         for category in self.CATEGORIES:
             response[category] = getattr(self, category)
         return response

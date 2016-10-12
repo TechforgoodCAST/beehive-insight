@@ -1,14 +1,15 @@
 {% extends 'app.html' %}
 {% block content %}
 
-<h1>Update</h1>
+<h1>Update beneficiaries</h1>
 
 <table style='white-space: nowrap;'>
   <thead>
     <tr>
       <td><strong>fund_slug</strong></td>
+      <td><strong>manual</strong></td>
       {% for k, v in records[0].items() %}
-        {% if k != 'fund_slug' %}
+        {% if k != 'fund_slug' and k != 'manual' %}
           <td><strong>{{ k }}</strong></td>
         {% endif %}
       {% endfor %}
@@ -18,9 +19,14 @@
   <tbody>
   {% for record in records %}
     <tr>
-      <td>{{ record.fund_slug }}</td>
+      <td>
+        {{ record.fund_slug }}
+        (<a href="/edit-beneficiary/{{ record.fund_slug }}">edit</a>,
+        <a href="/delete-beneficiary/{{ record.fund_slug }}">delete</a>)
+      </td>
+      <td>{{ record.manual }}</td>
       {% for k, v in record.items()  %}
-        {% if k != 'fund_slug' %}
+        {% if k != 'fund_slug' and k != 'manual' %}
           <td>{{ v|float|round(4) }}</td>
         {% endif %}
       {% endfor %}

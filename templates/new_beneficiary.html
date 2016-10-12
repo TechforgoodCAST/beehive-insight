@@ -1,0 +1,46 @@
+{% extends 'app.html' %}
+{% block content %}
+
+<h1>New beneficiary</h1>
+
+<form action="/create-beneficiary" method="post">
+  <div>
+    <label for="fund_slug">fund_slug</label>
+    <input type="text" name="fund_slug">
+  </div>
+
+  <div>
+    <label for="data">data</label>
+    <textarea name="data" rows="27" cols="20">{
+    "animals":0,
+    "buildings":0,
+    "care":0,
+    "crime":0,
+    "disabilities":0,
+    "disasters":0,
+    "education":0,
+    "environment":0,
+    "ethnic":1,
+    "exploitation":0,
+    "food":0,
+    "housing":0,
+    "mental":0,
+    "organisation":0,
+    "organisations":0,
+    "orientation":0,
+    "physical":0,
+    "poverty":0,
+    "public":0,
+    "refugees":0,
+    "relationship":0,
+    "religious":0,
+    "services":0,
+    "unemployed":0,
+    "water":0
+ }</textarea>
+  </div>
+
+  <input type="submit" name="submit">
+</form>
+
+{% endblock %}

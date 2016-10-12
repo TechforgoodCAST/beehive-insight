@@ -1,0 +1,27 @@
+<!-- TODO: partials and combined new/edit template -->
+{% extends 'app.html' %}
+{% block content %}
+
+<h1>Edit beneficiary</h1>
+
+<form action="/update-beneficiary" method="post">
+  <div>
+    <label for="fund_slug">fund_slug</label>
+    <input type="text" name="fund_slug" value="{{ record.fund_slug }}">
+  </div>
+
+  <div>
+    <label for="manual">manual</label>
+    <!-- TODO: radio -->
+    <input type="text" name="manual" value="{{ record.manual }}">
+  </div>
+
+  <div>
+    <label for="data">data</label>
+    <textarea name="data" rows="14" cols="40">{{ data }}</textarea>
+  </div>
+
+  <input type="submit" name="submit">
+</form>
+
+{% endblock %}

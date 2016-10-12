@@ -23,10 +23,12 @@ class Recommender:
         df = self.read_json()
         df.set_index('recipient', inplace=True)
         df.drop('fund_slug', inplace=True, axis=1)
+        df.drop('manual', inplace=True, axis=1)  # TODO:
         return df
 
     def grants(self):
         df = self.read_json()
+        df.drop('manual', inplace=True, axis=1)  # TODO:
         df = df[['fund_slug', 'recipient']]
         df.set_index('recipient', inplace=True)
         return df
@@ -47,14 +49,19 @@ class Recommender:
         scaled_funder_beneficiaries_groups = self.scale_funder_beneficiaries(funder_beneficiaries_groups)
         return scaled_funder_beneficiaries_groups
 
-    def get_or_create(self, session, model, slug, data):
+    # TODO: refactor
+    def get_or_create(self, session, model, slug, data, manual=False, recommender=False):
         instance = session.query(model).filter_by(fund_slug=slug).first()
         if instance:
-            instance.update(data)
-            session.commit()
-            return instance
+            if instance.manual is True and recommender is True:
+                return instance
+            else:
+                data['manual'] = manual
+                instance.update(data)
+                session.commit()
+                return instance
         else:
-            instance = model(slug, data)
+            instance = model(slug, data, manual)
             session.add(instance)
             session.commit()
             return instance
@@ -65,7 +72,7 @@ class Recommender:
         df = self.prepare_funders_data()
         dic = df.to_dict(orient='index')
         for item in dic.items():
-            self.get_or_create(db.session, FunderBeneficiary, item[0], item[1])
+            self.get_or_create(db.session, FunderBeneficiary, item[0], item[1], recommender=True)
 
     def parse_user_input(self, user_input):
         from models import FunderBeneficiary
@@ -83,6 +90,7 @@ class Recommender:
         for record in FunderBeneficiary.query.all():
             funders_data.append(record.serialize)
         funders_df = pd.DataFrame(funders_data)
+        funders_df.drop('manual', inplace=True, axis=1)  # TODO:
         funders_df.set_index('fund_slug', inplace=True)
         distances = pairwise_distances(parsed_user_input, funders_df, metric='cosine', n_jobs=1)
         return pd.Series(1 - distances[0], index=funders_df.index)

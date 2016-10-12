@@ -1,5 +1,5 @@
 import os
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, json, jsonify, request, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_httpauth import HTTPBasicAuth
 from recommender import Recommender
@@ -28,19 +28,79 @@ def verify_password(username, password):
 @app.route('/', methods=['GET'])
 @auth.login_required
 def root():
-    return 'Signed in as Admin'
+    return render_template('home.html')
 
 
-@app.route('/update_beneficiaries', methods=['GET'])
+@app.route('/new-beneficiary', methods=['GET'])
 @auth.login_required
-def update():
+def new_beneficiary():
+    return render_template('new_beneficiary.html')
+
+
+@app.route('/create-beneficiary', methods=['POST'])
+@auth.login_required
+def create_beneficiary():
+    # TODO: refactor
+    if len(request.form['fund_slug']) < 1:
+        raise ValueError('fund_slug too short')
+
+    from models import FunderBeneficiary  # TODO:
+    recommender.get_or_create(
+        db.session, FunderBeneficiary,
+        request.form['fund_slug'],
+        json.loads(request.form['data']),
+        True
+    )
+    return jsonify(request.form)
+
+
+@app.route('/edit-beneficiary/<fund_slug>', methods=['GET'])
+@auth.login_required
+def edit_beneficiary(fund_slug):
+    from models import FunderBeneficiary  # TODO:
+    record = db.session.query(FunderBeneficiary).filter_by(fund_slug=fund_slug).first()
+    data = {k: v for (k, v) in record.serialize.items() if 'fund_slug' not in k}
+    data = json.dumps(record.serialize, ensure_ascii=False)
+    return render_template('edit_beneficiary.html', record=record, data=data)
+
+
+@app.route('/delete-beneficiary/<fund_slug>', methods=['GET'])
+@auth.login_required
+def delete_beneficiary(fund_slug):
+    from models import FunderBeneficiary  # TODO:
+    record = db.session.query(FunderBeneficiary).filter_by(fund_slug=fund_slug).first()
+    db.session.delete(record)
+    db.session.commit()
+    return fund_slug + ' deleted'
+
+
+@app.route('/update-beneficiary', methods=['POST'])
+@auth.login_required
+def update_beneficiary():
+    # TODO: refactor
+    if len(request.form['fund_slug']) < 1:
+        raise ValueError('fund_slug too short')
+
+    from models import FunderBeneficiary  # TODO:
+    recommender.get_or_create(
+        db.session, FunderBeneficiary,
+        request.form['fund_slug'],
+        json.loads(request.form['data']),
+        request.form['manual']
+    )
+    return jsonify(request.form)
+
+
+@app.route('/update-beneficiaries', methods=['GET'])
+@auth.login_required
+def update_beneficiaries():
     # TODO: refacor
     from models import FunderBeneficiary
     recommender.save_funders_data()
     records = []
     for record in FunderBeneficiary.query.order_by(FunderBeneficiary.fund_slug).all():
         records.append(record.serialize)
-    return render_template('update.html', records=records)
+    return render_template('update_beneficiaries.html', records=records)
 
 
 @app.route('/beneficiaries', methods=['POST'])
@@ -51,7 +111,7 @@ def beneficiaries():
     return jsonify(result)
 
 
-@app.route('/update_amounts', methods=['GET'])
+@app.route('/update-amounts', methods=['GET'])
 @auth.login_required
 def update_amounts():
     return render_template(
@@ -68,7 +128,7 @@ def check_amount():
     return jsonify(result)
 
 
-@app.route('/update_durations', methods=['GET'])
+@app.route('/update-durations', methods=['GET'])
 @auth.login_required
 def update_durations():
     return render_template(
