@@ -14,7 +14,10 @@
   <tbody>
   {% for record in records %}
     <tr>
-      <td>{{ record.fund_slug }}</td>
+      <td>
+        {{ record.fund_slug }}
+        (<a href="/delete-amount/{{ record.fund_slug }}">delete</a>)
+      </td>
       {% for k, v in record.items()  %}
         {% if k != 'fund_slug' %}
           <td>{{ v }}</td>

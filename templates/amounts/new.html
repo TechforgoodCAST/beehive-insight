@@ -1,0 +1,21 @@
+<!-- TODO: partials and combined new/edit template -->
+{% extends 'app.html' %}
+{% block content %}
+
+<h1>New amount</h1>
+
+<form action="/create-amount" method="post">
+  <div>
+    <label for="fund_slug">fund_slug</label>
+    <input type="text" name="fund_slug">
+  </div>
+
+  <div>
+    <label for="amounts">amounts</label>
+    <textarea name="amounts" rows="8" cols="40">[]</textarea>
+  </div>
+
+  <input type="submit" name="submit">
+</form>
+
+{% endblock %}
