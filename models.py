@@ -51,10 +51,12 @@ class FundAmount(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     fund_slug = db.Column(db.String(255), nullable=False)
     amounts = db.Column(sqlalchemy.dialects.postgresql.ARRAY(db.Float), nullable=False)
+    manual = db.Column(db.Boolean, nullable=False, default=False)
 
-    def __init__(self, fund_slug, amounts):
+    def __init__(self, fund_slug, amounts, manual=False):
         self.fund_slug = fund_slug
         self.amounts = amounts
+        self.manual = manual
 
     def __repr__(self):
         return '<FundAmount %r>' % self.id
@@ -68,7 +70,8 @@ class FundAmount(db.Model):
     def serialize(self):
         return {
             'fund_slug': self.fund_slug,
-            'amounts': self.amounts
+            'amounts': self.amounts,
+            'manual': self.manual
         }
 
 

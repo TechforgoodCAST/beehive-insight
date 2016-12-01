@@ -1,5 +1,5 @@
 import os
-from flask import Flask, json, jsonify, request, render_template
+from flask import Flask, json, jsonify, request, flash, redirect, url_for, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_httpauth import HTTPBasicAuth
 from recommender import Recommender
@@ -30,6 +30,9 @@ def verify_password(username, password):
 def root():
     return render_template('home.html')
 
+
+# Beneficiaries
+# ==============================================================================
 
 @app.route('/new-beneficiary', methods=['GET'])
 @auth.login_required
@@ -111,11 +114,49 @@ def beneficiaries():
     return jsonify(result)
 
 
+# Amounts
+# ==============================================================================
+
+@app.route('/new-amount', methods=['GET'])
+@auth.login_required
+def new_amount():
+    return render_template('amounts/new.html')
+
+
+@app.route('/create-amount', methods=['POST'])
+@auth.login_required
+def create_amount():
+    # TODO: refactor
+    if len(request.form['fund_slug']) < 1:
+        raise ValueError('fund_slug too short')
+
+    from models import FundAmount  # TODO
+    recommender.get_or_create(
+        db.session, FundAmount,
+        request.form['fund_slug'],
+        json.loads(request.form['amounts']),
+        True
+    )
+    flash(request.form['fund_slug'] + ' created')
+    return redirect(url_for('update_amounts'))
+
+
+@app.route('/delete-amount/<fund_slug>', methods=['GET'])
+@auth.login_required
+def delete_amount(fund_slug):
+    from models import FundAmount  # TODO
+    record = db.session.query(FundAmount).filter_by(fund_slug=fund_slug).first()
+    db.session.delete(record)
+    db.session.commit()
+    flash(fund_slug + ' deleted')
+    return redirect(url_for('update_amounts'))
+
+
 @app.route('/update-amounts', methods=['GET'])
 @auth.login_required
 def update_amounts():
     return render_template(
-        'update_amounts.html',
+        'amounts/index.html',
         records=fund_request.save_fund_amounts()
     )
 
@@ -127,6 +168,9 @@ def check_amount():
     result = fund_request.check_amount(data)
     return jsonify(result)
 
+
+# Durations
+# ==============================================================================
 
 @app.route('/update-durations', methods=['GET'])
 @auth.login_required
